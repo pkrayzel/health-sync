@@ -11,7 +11,10 @@ import (
 func main() {
 	godotenv.Load()
 
-	app := fiber.New()
+	// Create a new Fiber app with an increased body limit (e.g., 100 MB)
+	app := fiber.New(fiber.Config{
+		BodyLimit: 100 * 1024 * 1024, // 100 MB
+	})
 
 	// Middleware to check API key
 	app.Use(func(c *fiber.Ctx) error {
