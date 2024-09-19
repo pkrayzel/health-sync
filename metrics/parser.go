@@ -3,6 +3,7 @@ package metrics
 import (
 	"encoding/json"
 	"errors"
+	"log"
 )
 
 func ParsePayload(payload map[string]interface{}) ([]Metric, error) {
@@ -16,21 +17,24 @@ func ParsePayload(payload map[string]interface{}) ([]Metric, error) {
 		// Parse each metric based on its "name" field
 		var metric Metric
 		switch metricData.(map[string]interface{})["name"] {
-		case "apple_stand_time":
-			var standTimeMetric StandTimeMetric
-			if err := json.Unmarshal(metricJson, &standTimeMetric); err != nil {
+		case "active_energy":
+			var activeEnergyMetric ActiveEnergyMetric
+			if err := json.Unmarshal(metricJson, &activeEnergyMetric); err != nil {
 				return nil, err
 			}
-			metric = standTimeMetric
-		case "heart_rate":
-			var heartRateMetric HeartRateMetric
-			if err := json.Unmarshal(metricJson, &heartRateMetric); err != nil {
+			metric = activeEnergyMetric
+
+		case "basal_energy_burned":
+			var basalEnergyMetric BasalEnergyBurnedMetric
+			if err := json.Unmarshal(metricJson, &basalEnergyMetric); err != nil {
 				return nil, err
 			}
-			metric = heartRateMetric
-		// Add more cases for other metric types
+			metric = basalEnergyMetric
+
 		default:
-			return nil, errors.New("unknown metric type")
+			// Skip unsupported metrics but log them
+			log.Printf("Skipping unknown metric: %s", metricData.(map[string]interface{})["name"])
+			continue
 		}
 
 		metrics = append(metrics, metric)
