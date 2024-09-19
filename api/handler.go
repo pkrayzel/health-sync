@@ -62,16 +62,22 @@ func GetAverageCaloriesHandler(c *fiber.Ctx) error {
 	}
 
 	// Call domain service for processing/aggregation
-	avgCalories := domain.CalculateAverageCalories(metricsData)
-	if avgCalories == 0 {
+	averageTotalCalories, averageActiveCalories, averageBasalCalories := domain.CalculateAverageLastMonth(metricsData)
+	if averageTotalCalories == 0 {
 		log.Printf("No calorie data available to calculate average")
 		return c.Status(200).SendString("No calorie data available")
 	}
 
-	log.Printf("Average daily calories: %f", avgCalories)
+	log.Printf("Average daily calories: %f", averageTotalCalories)
+	log.Printf("Average active daily calories: %f", averageActiveCalories)
+	log.Printf("Average basal daily calories: %f", averageBasalCalories)
 
 	// Return the calculated average in JSON format
 	return c.JSON(fiber.Map{
-		"averageCalories": avgCalories,
+		"lastMonth": fiber.Map{
+			"averageTotalCalories":  averageTotalCalories,
+			"averageActiveCalories": averageActiveCalories,
+			"averageBasalCalories":  averageBasalCalories,
+		},
 	})
 }
