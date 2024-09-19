@@ -31,8 +31,9 @@ func main() {
 	app.Use(apiKeyMiddleware)
 
 	// Define API routes
-	app.Post("/upload", api.UploadHandler)     // Upload route
-	app.Get("/payload", api.GetPayloadHandler) // Retrieve payload route
+	app.Post("/upload", api.UploadHandler)             // Upload route
+	app.Get("/payload", api.GetPayloadHandler)         // Retrieve payload route
+	app.Get("/metrics", api.GetAverageCaloriesHandler) // Retrieve domain metrics
 
 	// Start the server on port 8888
 	log.Fatal(app.Listen(":8888"))
