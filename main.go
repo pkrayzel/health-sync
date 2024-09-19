@@ -23,8 +23,9 @@ func main() {
 	// Initialize Redis connection
 	api.InitRedis()
 
-	// Create a new Fiber instance
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 100 * 1024 * 1024, // 100 MB
+	})
 
 	// Use middleware to check API key
 	app.Use(apiKeyMiddleware)
