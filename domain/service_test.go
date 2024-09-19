@@ -15,13 +15,13 @@ func TestCalculateAverageCalories(t *testing.T) {
 		metrics.EnergyMetric{
 			Name:  "active_energy",
 			Units: "kcal",
-			Date:  metrics.CustomTime{Time: time.Now().AddDate(0, 0, -1)},
+			Date:  time.Now().AddDate(0, 0, -1),
 			Qty:   2000,
 		},
 		metrics.EnergyMetric{
 			Name:  "basal_energy_burned",
 			Units: "kcal",
-			Date:  metrics.CustomTime{Time: time.Now().AddDate(0, 0, -1)},
+			Date:  time.Now().AddDate(0, 0, -1),
 			Qty:   2400, // Convert from kJ to kcal
 		},
 	}

@@ -6,7 +6,6 @@ import (
 	"log"
 )
 
-// ParsePayload takes a payload in a map format and parses it into a slice of metrics.
 func ParsePayload(payload map[string]interface{}) ([]Metric, error) {
 	var metrics []Metric
 
@@ -16,25 +15,32 @@ func ParsePayload(payload map[string]interface{}) ([]Metric, error) {
 			return nil, errors.New("failed to marshal metric data")
 		}
 
-		var energyMetric EnergyMetric
-		if err := json.Unmarshal(metricJson, &energyMetric); err != nil {
+		var energyMetricHolder EnergyMetricHolder
+		if err := json.Unmarshal(metricJson, &energyMetricHolder); err != nil {
 			return nil, err
 		}
 
-		// Only keep the metrics we are interested in (active_energy, basal_energy_burned)
-		switch energyMetric.Name {
+		// Only keep the metrics we are interested in
+		switch energyMetricHolder.Name {
 		case "active_energy", "basal_energy_burned":
-			// For basal energy, convert kJ to kcal
-			if energyMetric.Name == "basal_energy_burned" {
-				energyMetric.Qty = energyMetric.Qty / 4.184
+			// Iterate over the Data slice and check the Date field
+			for _, data := range energyMetricHolder.Data {
+				if data.Date == nil {
+					log.Printf("Skipping metric %s due to missing or invalid date", energyMetricHolder.Name)
+					continue
+				}
+
+				// Convert kJ to kcal
+				convertedQty := data.Qty * 0.239
+
+				metrics = append(
+					metrics,
+					NewEnergyMetric(energyMetricHolder.Name, energyMetricHolder.Units, data.Date.Time, convertedQty, data.Source),
+				)
 			}
-			metrics = append(metrics, energyMetric)
 		default:
-			// Log unsupported metrics and skip them
-			log.Printf("Skipping unsupported metric: %s", energyMetric.Name)
-			continue
+			log.Printf("Skipping unsupported metric: %s", energyMetricHolder.Name)
 		}
 	}
-
 	return metrics, nil
 }
