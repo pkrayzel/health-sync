@@ -24,41 +24,21 @@ func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
 	return nil
 }
 
-// Base Metric interface (optional, useful for handling generically)
+// Metric interface for generic handling of different metrics
 type Metric interface {
 	GetName() string
 }
 
-// ActiveEnergyMetric struct
-type ActiveEnergyMetric struct {
-	Name  string             `json:"name"`
-	Units string             `json:"units"`
-	Data  []ActiveEnergyData `json:"data"`
-}
-
-func (aem ActiveEnergyMetric) GetName() string {
-	return aem.Name
-}
-
-type ActiveEnergyData struct {
+// Flattened structure for ActiveEnergy and BasalEnergyBurned metrics
+type EnergyMetric struct {
+	Name   string     `json:"name"`
+	Units  string     `json:"units"`
 	Date   CustomTime `json:"date"`
 	Qty    float64    `json:"qty"`
 	Source string     `json:"source,omitempty"`
 }
 
-// BasalEnergyBurnedMetric struct
-type BasalEnergyBurnedMetric struct {
-	Name  string            `json:"name"`
-	Units string            `json:"units"`
-	Data  []BasalEnergyData `json:"data"`
-}
-
-func (beb BasalEnergyBurnedMetric) GetName() string {
-	return beb.Name
-}
-
-type BasalEnergyData struct {
-	Date   CustomTime `json:"date"`
-	Qty    float64    `json:"qty"`
-	Source string     `json:"source,omitempty"`
+// GetName method to satisfy the Metric interface
+func (em EnergyMetric) GetName() string {
+	return em.Name
 }

@@ -33,22 +33,18 @@ func TestParsePayloadFromFile(t *testing.T) {
 	// Assert that the parsed data contains expected metrics
 	assert.NotEmpty(t, metricsData, "Parsed metrics data should not be empty")
 
-	// Verify that only active_energy and basal_energy_burned are present
+	// Verify that both active_energy and basal_energy_burned are present
 	var foundActiveEnergy, foundBasalEnergy bool
 	for _, metric := range metricsData {
 		switch metric.GetName() {
 		case "active_energy":
 			foundActiveEnergy = true
-			activeEnergyMetric := metric.(ActiveEnergyMetric)
-			assert.Greater(t, len(activeEnergyMetric.Data), 0, "Active energy data should not be empty")
-			assert.NotNil(t, activeEnergyMetric.Data[0].Qty, "Active energy should have a valid quantity")
-
+			assert.NotNil(t, metric, "Active energy metric should be valid")
 		case "basal_energy_burned":
 			foundBasalEnergy = true
-			basalEnergyMetric := metric.(BasalEnergyBurnedMetric)
-			assert.Greater(t, len(basalEnergyMetric.Data), 0, "Basal energy data should not be empty")
-			assert.NotNil(t, basalEnergyMetric.Data[0].Qty, "Basal energy should have a valid quantity")
-
+			assert.NotNil(t, metric, "Basal energy metric should be valid")
+			// Check that conversion from kJ to kcal happened
+			assert.Less(t, metric.(EnergyMetric).Qty, 4000.0, "Basal energy should be less than 4000 kcal after conversion")
 		default:
 			t.Errorf("Unexpected metric found: %s", metric.GetName())
 		}
